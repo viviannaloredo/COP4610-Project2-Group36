@@ -1,0 +1,19 @@
+# Compiled programs and kernel modules
+*.o
+*.ko
+*.mod
+*.mod.c
+*.cmd
+*.order
+*.symvers
+*.a
+
+# Generated build files
+.tmp_versions/
+.*.cmd
+modules.order
+Module.symvers
+
+# Part 1 executables
+/part1/empty
+/part1/part1
