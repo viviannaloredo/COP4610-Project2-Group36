@@ -234,7 +234,7 @@ static int elevator_worker(void *unused)
             state = LOADING;
             mutex_unlock(&elevator_lock);
 
-            ssleep(10);
+            ssleep(1);
 
             mutex_lock(&elevator_lock);
             service_current_floor();

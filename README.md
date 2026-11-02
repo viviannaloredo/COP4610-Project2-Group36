@@ -98,7 +98,7 @@ The project is designed to support:
 - Linked lists for pets waiting on each floor and riding the elevator
 - Mutexes to protect shared data
 - A `/proc/elevator` entry for elevator status
-- Two seconds to move between floors and ten seconds for loading/unloading
+- Two seconds to move between floors and one second for loading/unloading
 
 Part 3's complete behavior remains subject to integration testing on the modified kernel.
 
