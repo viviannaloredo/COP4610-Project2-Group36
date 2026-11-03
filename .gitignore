@@ -17,3 +17,8 @@ Module.symvers
 # Part 1 executables
 /part1/empty
 /part1/part1
+
+# Part 3 test programs
+part3/tests/elevator-test/producer
+part3/tests/elevator-test/consumer
+part3/tests/system-calls-test/test-syscalls
