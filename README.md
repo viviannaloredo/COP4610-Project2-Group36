@@ -152,38 +152,32 @@ sudo rmmod elevator
 Run `make clean` in any part's folder, or at the root to clean everything. Kernel module
 cleanup needs the matching kernel build directory to be installed.
 
-Development Log
-EXAMPLE ENTRIES — REPLACE BEFORE SUBMISSION. The dates and individual work notes below are sample wording based on the original division of labor. They are not verified records of work performed by the named members. Replace them with each person's real dates and contributions. The October 13 division-of-labor submission and November 2 local development/tests are the dates that have been established.
+## Development log
 
-Vivianna Loredo
-Date	Work Completed / Notes (Example)
-2026-10-13	Reviewed the project instructions and the sections assigned to me, including Part 1, the timer module, linked lists, mutexes, and the scheduling algorithm. The division-of-labor document was submitted on Canvas.
-2026-10-18	Worked on the system-call tracing programs and compared the trace files to check that Part 1 made exactly five additional calls.
-2026-10-23	Reviewed the timer module, especially how /proc/timer prints the current time and calculates the elapsed time after another read.
-2026-10-28	Worked on the linked-list and mutex portions of the elevator and checked how pet requests should be stored and protected.
-2026-11-02	Helped review the elevator's scheduling rules, checked the Part 1 and Part 2 test results, and worked on the final README and repository organization.
-Damian Abrego
-Date	Work Completed / Notes (Example)
-2026-10-13	Reviewed the division of labor and the assigned kernel-related sections, including system calls, kernel compilation, threads, linked lists, mutexes, and elevator scheduling.
-2026-10-18	Worked through the required system-call registration changes and how the wrappers connect to the elevator module.
-2026-10-23	Reviewed the modified kernel configuration and compilation process and checked the files needed to register the elevator calls.
-2026-10-28	Worked on the kernel thread and linked-list behavior, including moving between floors and keeping track of waiting and onboard pets.
-2026-11-02	Reviewed mutex synchronization and scheduling behavior and checked the remaining kernel integration work before submission.
-Xavier Rosario
-Date	Work Completed / Notes (Example)
-2026-10-13	Reviewed the project requirements and the assigned sections, including Part 1, Part 2, adding system calls, kernel compilation, and the elevator thread.
-2026-10-18	Worked on the two Part 1 programs and used strace to compare the baseline program with the five additional calls.
-2026-10-23	Worked on the timer module and checked the current-time output, elapsed-time calculation, and cleanup when unloading.
-2026-10-28	Reviewed the custom kernel configuration and system-call wrappers and checked how they would be used by the elevator module.
-2026-11-02	Helped review the elevator thread and compilation status and checked the remaining testing steps needed for the demonstration.
-Meetings
-EXAMPLE MEETING LOG — REPLACE BEFORE SUBMISSION. These are examples of how to document group meetings, not a record that the meetings occurred. Update the dates, attendees, format, and discussion to match actual meetings.
+### Vivianna Loredo
 
-Example Date	Example Attendees	Format	Discussion / Outcome (Example)
-2026-10-13	Vivianna Loredo, Xavier Rosario, Damian Abrego	[Confirm format]	Reviewed the project requirements and went through the division of labor. Discussed which tasks depended on the modified kernel and which ones could be tested separately.
-2026-10-22	Vivianna Loredo, Xavier Rosario, Damian Abrego	[Confirm format]	Discussed progress on Part 1 and the timer module and checked the steps required to add the three new system calls.
-2026-10-29	Vivianna Loredo, Xavier Rosario, Damian Abrego	[Confirm format]	Reviewed the elevator thread, linked lists, mutexes, scheduling requirements, and remaining kernel build tasks.
-2026-11-02	Vivianna Loredo, Xavier Rosario, Damian Abrego	[Confirm format]	Discussed the current compilation and testing status and what still needed to be finished before the demonstration.
+| Date | Work completed |
+| --- | --- |
+| 2026-11-02 | Pushed the initial files: Parts 1 and 2, elevator, syscalls, Makefiles, README. |
+| 2026-11-02 | Fixed the elevator loading time (commit "Correct elevator loading timing"). |
+
+### Xavier Rosario
+
+| Date | Work completed |
+| --- | --- |
+| 2026-11-02 | Pushed the split-up Part 3 source files and the provided tests in `part3/tests/`. |
+
+### Damian Abrego
+
+| Date | Work completed |
+| --- | --- |
+| 2026-11-02 | Revised the README: project description, development log, and meeting sections. |
+
+## Group meetings
+
+| Date | Attendees | Format | Discussion |
+| --- | --- | --- | --- |
+| 2026-11-02 | Vivianna, Xavier, Damian | | Compilation and testing status. |
 
 ## Testing
 
