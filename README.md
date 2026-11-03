@@ -1,6 +1,6 @@
 # Pet Elevator
 
-Project 2 for COP4610 (Operating Systems), Group 36, written in C.
+Project 2 for COP4610, Group 36, written in C.
 
 **Group:** Damian Abrego, Vivianna Loredo, Xavier Rosario
 
