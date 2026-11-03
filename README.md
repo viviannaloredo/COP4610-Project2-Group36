@@ -39,9 +39,9 @@ status through `/proc/elevator`.
 
 | Member | Contributions |
 | --- | --- |
-| Vivianna Loredo | |
-| Xavier Rosario | |
-| Damian Abrego | |
+| Vivianna Loredo | |Contributions Matched the Division(CMD)|
+| Xavier Rosario | |CMD|
+| Damian Abrego | |CMD|
 
 ## File listing
 
@@ -177,7 +177,7 @@ cleanup needs the matching kernel build directory to be installed.
 
 | Date | Attendees | Format | Discussion |
 | --- | --- | --- | --- |
-| 2026-11-02 | Vivianna, Xavier, Damian | | Compilation and testing status. |
+| 2026-11-02 | Vivianna, Xavier, Damian | |zoom,group chat|| Compilation and testing status. |
 
 ## Testing
 
