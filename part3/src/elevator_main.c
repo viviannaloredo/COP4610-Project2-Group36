@@ -16,6 +16,7 @@ MODULE_DESCRIPTION("COP4610 pet elevator module");
 extern int (*STUB_start_elevator)(void);
 extern int (*STUB_issue_request)(int, int, int);
 extern int (*STUB_stop_elevator)(void);
+extern struct mutex elevator_syscall_lock;
 
 /* Shared elevator data, protected by elevator_lock */
 struct list_head waiting[FLOORS];
@@ -112,9 +113,11 @@ static int __init elevator_init(void)
         return err;
     }
 
+    mutex_lock(&elevator_syscall_lock);
     STUB_start_elevator = elevator_start;
     STUB_issue_request = elevator_request;
     STUB_stop_elevator = elevator_stop;
+    mutex_unlock(&elevator_syscall_lock);
     return 0;
 }
 
@@ -123,9 +126,11 @@ static void __exit elevator_exit(void)
     int floor;
 
     /* Stop accepting system calls before tearing anything down */
+    mutex_lock(&elevator_syscall_lock);
     STUB_start_elevator = NULL;
     STUB_issue_request = NULL;
     STUB_stop_elevator = NULL;
+    mutex_unlock(&elevator_syscall_lock);
 
     elevator_proc_exit();
     kthread_stop(elevator_task);
