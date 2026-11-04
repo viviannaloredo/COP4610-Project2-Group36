@@ -1,0 +1,102 @@
+diff -uNr a/arch/x86/entry/syscalls/syscall_64.tbl b/arch/x86/entry/syscalls/syscall_64.tbl
+--- a/arch/x86/entry/syscalls/syscall_64.tbl	2025-10-12 11:01:05.000000000 +0000
++++ b/arch/x86/entry/syscalls/syscall_64.tbl	2026-11-04 03:59:01.197994665 +0000
+@@ -436,3 +436,6 @@
+ 547	x32	pwritev2		compat_sys_pwritev64v2
+ # This is the end of the legacy x32 range.  Numbers 548 and above are
+ # not special and are not to be used for x32-specific syscalls.
++548	common	start_elevator	sys_start_elevator
++549	common	issue_request	sys_issue_request
++550	common	stop_elevator	sys_stop_elevator
+diff -uNr a/include/linux/syscalls.h b/include/linux/syscalls.h
+--- a/include/linux/syscalls.h	2025-10-12 11:01:05.000000000 +0000
++++ b/include/linux/syscalls.h	2026-11-04 03:59:01.194120212 +0000
+@@ -1320,4 +1320,9 @@
+ 		int __user *optlen);
+ int __sys_setsockopt(int fd, int level, int optname, char __user *optval,
+ 		int optlen);
++
++/* COP4610 elevator system calls */
++asmlinkage long sys_start_elevator(void);
++asmlinkage long sys_issue_request(int start_floor, int destination_floor, int type);
++asmlinkage long sys_stop_elevator(void);
+ #endif
+diff -uNr a/Makefile b/Makefile
+--- a/Makefile	2025-10-12 11:01:05.000000000 +0000
++++ b/Makefile	2026-11-04 03:59:01.190858439 +0000
+@@ -781,7 +781,7 @@
+ 
+ ifeq ($(KBUILD_EXTMOD),)
+ # Objects we will link into vmlinux / subdirs we need to visit
+-core-y		:=
++core-y		:= syscalls/
+ drivers-y	:=
+ libs-y		:= lib/
+ endif # KBUILD_EXTMOD
+diff -uNr a/syscalls/Makefile b/syscalls/Makefile
+--- a/syscalls/Makefile	1970-01-01 00:00:00.000000000 +0000
++++ b/syscalls/Makefile	2026-11-04 03:59:01.200789193 +0000
+@@ -0,0 +1 @@
++obj-y += syscalls.o
+diff -uNr a/syscalls/syscalls.c b/syscalls/syscalls.c
+--- a/syscalls/syscalls.c	1970-01-01 00:00:00.000000000 +0000
++++ b/syscalls/syscalls.c	2026-11-04 03:59:01.203699011 +0000
+@@ -0,0 +1,58 @@
++#include <linux/errno.h>
++#include <linux/module.h>
++#include <linux/syscalls.h>
++#include <linux/mutex.h>
++
++/* Function pointers for the elevator module */
++int (*STUB_start_elevator)(void) = NULL;
++int (*STUB_issue_request)(int, int, int) = NULL;
++int (*STUB_stop_elevator)(void) = NULL;
++
++EXPORT_SYMBOL(STUB_start_elevator);
++EXPORT_SYMBOL(STUB_issue_request);
++EXPORT_SYMBOL(STUB_stop_elevator);
++
++/* Protect every call against module removal. */
++DEFINE_MUTEX(elevator_syscall_lock);
++EXPORT_SYMBOL(elevator_syscall_lock);
++
++/* Start the elevator */
++SYSCALL_DEFINE0(start_elevator)
++{
++    long result = -ENOSYS;
++
++    mutex_lock(&elevator_syscall_lock);
++    if (STUB_start_elevator != NULL)
++        result = STUB_start_elevator();
++    mutex_unlock(&elevator_syscall_lock);
++
++    return result;
++}
++
++/* Add a pet request */
++SYSCALL_DEFINE3(issue_request, int, start_floor,
++                int, destination_floor, int, type)
++{
++    long result = -ENOSYS;
++
++    mutex_lock(&elevator_syscall_lock);
++    if (STUB_issue_request != NULL)
++        result = STUB_issue_request(start_floor,
++                                  destination_floor, type);
++    mutex_unlock(&elevator_syscall_lock);
++
++    return result;
++}
++
++/* Stop the elevator */
++SYSCALL_DEFINE0(stop_elevator)
++{
++    long result = -ENOSYS;
++
++    mutex_lock(&elevator_syscall_lock);
++    if (STUB_stop_elevator != NULL)
++        result = STUB_stop_elevator();
++    mutex_unlock(&elevator_syscall_lock);
++
++    return result;
++}
