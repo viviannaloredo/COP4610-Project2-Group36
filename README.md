@@ -1,99 +1,68 @@
-# Pet Elevator
+# COP4610 Project 2 - Pet Elevator
 
-Project 2 for COP4610, Group 36, written in C.
+**Group 36:** Vivianna Loredo, Xavier Rosario, Damian Abrego
+**Language:** C
+**Test environment:** Ubuntu Server 24.04 in VMware; custom Linux kernel `6.16.12-cop4610` for Part 3
 
-**Group:** Damian Abrego, Vivianna Loredo, Xavier Rosario
+## About the project
 
-## What's in here
+- **Part 1:** Use `strace` to compare an empty C program with one that makes five extra system calls.
+- **Part 2:** Make a kernel module that creates `/proc/timer` and shows the current time and time since the last read.
+- **Part 3:** Add three system calls and run a pet elevator inside the Linux kernel using a kernel thread, linked lists, mutexes, and dynamic memory allocation.
 
-The project has three parts:
+## Elevator requirements
 
-1. **System call tracing** - We use `strace` to compare an empty C program against one that
-   makes five extra system calls.
-2. **Timer module** - A kernel module that creates `/proc/timer` and shows the current time
-   plus how long it's been since the last read.
-3. **Pet elevator** - Three custom system calls (`start_elevator`, `issue_request`,
-   `stop_elevator`) and a kernel module that runs a five-floor elevator for pets.
+- Five floors (1 through 5), with a maximum of **5 pets** and **50 lbs** onboard.
+- Pets board in FIFO order on each floor. The elevator uses the first onboard pet's destination, or the oldest waiting request if empty, to choose where to go.
+- Moving one floor takes **2 seconds**; loading or unloading takes **1 second** per stop.
+- Pet types: Chihuahua (`0`, 3 lbs), Pug (`1`, 14 lbs), Pughuahua (`2`, 10 lbs), Dachshund (`3`, 16 lbs).
+- Invalid floors, pet types, or requests going to the same floor return `1`. Valid requests return `0`.
+- The elevator can finish delivering pets already onboard after a stop request.
+- `/proc/elevator` shows its state, current floor, load, pets onboard, waiting pets, and number serviced.
 
-The elevator runs on a kernel thread, keeps track of pets with linked lists, and uses mutexes
-to protect shared data. It holds up to five pets or 50 pounds, boards pets in FIFO order,
-takes two seconds to move between floors and one second to load or unload, and reports its
-status through `/proc/elevator`.
+| Syscall | Number | Purpose |
+| --- | --- | --- |
+| `start_elevator` | 548 | Start elevator |
+| `issue_request` | 549 | Add a pet request |
+| `stop_elevator` | 550 | Stop elevator |
 
 ## Division of labor
 
-**Original plan** (submitted on Canvas):
+This was our original division. We also helped each other with debugging, testing, and getting the parts working together.
 
-| Section | Assigned to |
+| Section | Assigned members |
 | --- | --- |
-| Part 1: System call tracing | Vivianna, Xavier |
-| Part 2: Timer module | Vivianna, Xavier |
-| Part 3A: Adding system calls | Damian, Xavier |
-| Part 3B: Kernel compilation | Damian, Xavier |
-| Part 3C: Kernel thread | Damian, Xavier |
-| Part 3D: Linked lists | Vivianna, Damian |
-| Part 3E: Mutexes | Vivianna, Damian |
-| Part 3F: Scheduling | Damian, Vivianna |
+| Part 1 - `strace` | Vivianna, Xavier |
+| Part 2 - Timer module | Vivianna, Xavier |
+| Part 3A - System calls | Damian, Xavier |
+| Part 3B - Kernel compilation | Damian, Xavier |
+| Part 3C - Kernel thread | Damian, Xavier |
+| Part 3D - Linked lists | Vivianna, Damian |
+| Part 3E - Mutexes | Vivianna, Damian |
+| Part 3F - Scheduling | Damian, Vivianna |
 
-**What actually happened:**
+## Files
 
-| Member | Contributions |
+| Location | What it contains |
 | --- | --- |
-| Vivianna Loredo | Contributions Matched the Division(CMD) |
-| Xavier Rosario | CMD |
-| Damian Abrego | CMD |
+| `part1/` | `empty.c`, `part1.c`, trace files, Makefile |
+| `part2/src/` | `my_timer.c` and module Makefile |
+| `part3/syscalls.c` | Kernel system-call wrappers and pointers |
+| `part3/src/elevator_main.c` | Elevator module setup and cleanup |
+| `part3/src/pets.c` | Pet requests and linked lists |
+| `part3/src/scheduler.c` | Elevator thread, movement, and loading |
+| `part3/src/proc.c` | `/proc/elevator` output |
+| `part3/src/elevator.h`, `elevator.c` | Shared definitions and earlier elevator source |
+| `part3/tests/` | Provided producer, consumer, and system-call test programs |
+| `Makefile`, `part*/Makefile` | Build commands for the project parts |
 
-## File listing
+The actual elevator module is built from `elevator_main.c`, `pets.c`, `scheduler.c`, and `proc.c` through `part3/src/Makefile`.
 
-```text
-COP4610-Project2-Group36/
-├── Makefile
-├── README.md
-├── .gitignore
-├── part1/
-│   ├── Makefile
-│   ├── empty.c
-│   ├── empty.trace
-│   ├── part1.c
-│   └── part1.trace
-├── part2/
-│   ├── Makefile
-│   └── src/
-│       ├── Makefile
-│       └── my_timer.c
-└── part3/
-    ├── Makefile
-    ├── syscalls.c
-    ├── src/
-    │   ├── Makefile
-    │   ├── elevator.c
-    │   ├── elevator.h
-    │   ├── elevator_main.c
-    │   ├── pets.c
-    │   ├── proc.c
-    │   └── scheduler.c
-    └── tests/
-        ├── elevator-test/        (producer.c, consumer.c, wrappers.h, Makefile)
-        └── system-calls-test/    (syscheck.c, test-syscalls.c/.h, Makefile)
-```
+## How to run
 
-- `Makefile` (root) - builds all three parts.
-- `part1/` - the two C programs and their `strace` output.
-- `part2/src/my_timer.c` - the timer module that creates `/proc/timer`.
-- `part3/syscalls.c` - the three system call wrappers.
-- `part3/src/elevator_main.c` - module setup, teardown, and the elevator kernel thread.
-- `part3/src/pets.c` - pet requests and the linked lists for floors and the elevator.
-- `part3/src/scheduler.c` - how the elevator moves and picks up pets.
-- `part3/src/proc.c` - the `/proc/elevator` output.
-- `part3/src/elevator.h` and `elevator.c` - shared definitions and elevator state.
-- `part3/tests/` - the course-provided producer/consumer and system call tests.
+Requires Ubuntu/Linux, GCC, Make, `strace`, kernel build dependencies, and `sudo`. Kernel modules must be built for the running kernel.
 
-## Building and running
-
-You'll need a Linux VM (we used Ubuntu Server 24.04 on x86-64) with GCC, Make, `strace`,
-kernel headers, and `sudo`. Kernel modules won't run directly on macOS or Windows.
-
-### Part 1
+**Part 1**
 
 ```bash
 cd part1
@@ -101,92 +70,78 @@ make
 make trace
 ```
 
-### Part 2
+**Part 2**
 
 ```bash
 cd part2
 make
 sudo insmod src/my_timer.ko
 cat /proc/timer
+sleep 2 && cat /proc/timer
 sudo rmmod my_timer
 ```
 
-Read `/proc/timer` a few times with a `sleep` in between to see the elapsed time change.
-Removing the module removes the proc entry.
+**Part 3**
 
-### Part 3
-
-Part 3 needs a custom kernel (we used Linux 6.16.12) because of the added system calls.
-Here's what we changed in the kernel source:
-
-1. Copy `part3/syscalls.c` into the kernel's `syscalls/` directory and add a Makefile there
-   with `obj-y += syscalls.o`.
-2. Add these entries to `arch/x86/entry/syscalls/syscall_64.tbl`:
-   - `548 common start_elevator sys_start_elevator`
-   - `549 common issue_request sys_issue_request`
-   - `550 common stop_elevator sys_stop_elevator`
-3. Declare all three functions in `include/linux/syscalls.h`.
-4. Add `syscalls/` to `core-y` in the kernel's top-level Makefile.
-5. Build and install the kernel, reboot, and check `uname -r` to make sure you're on the
-   custom one.
-
-Then, from the repo root:
+We modified and installed Linux `6.16.12-cop4610` by adding `part3/syscalls.c` to the kernel's `syscalls/` directory, registering calls 548-550 in `arch/x86/entry/syscalls/syscall_64.tbl`, declaring them in `include/linux/syscalls.h`, and including `syscalls/` in the kernel Makefile. The custom kernel must be installed and booted **before** running Part 3. Check with `uname -r`.
 
 ```bash
 cd part3
 make
 sudo insmod elevator.ko
-
 cd tests/elevator-test
 make
 ./consumer --start
 ./producer 10
 watch -n 1 cat /proc/elevator
-./consumer --stop
+```
 
+Press Ctrl+C to close `watch`, then:
+
+```bash
+./consumer --stop
 sudo rmmod elevator
 ```
 
-### Cleaning up
-
-Run `make clean` in any part's folder, or at the root to clean everything. Kernel module
-cleanup needs the matching kernel build directory to be installed.
-
-## Development log
-
-### Vivianna Loredo
-
-| Date | Work completed |
-| --- | --- |
-| 2026-11-02 | Pushed the initial files: Parts 1 and 2, elevator, syscalls, Makefiles, README. |
-| 2026-11-02 | Fixed the elevator loading time (commit "Correct elevator loading timing"). |
-
-### Xavier Rosario
-
-| Date | Work completed |
-| --- | --- |
-| 2026-11-02 | Pushed the split-up Part 3 source files and the provided tests in `part3/tests/`. |
-
-### Damian Abrego
-
-| Date | Work completed |
-| --- | --- |
-| 2026-11-02 | Revised the README: project description, development log, and meeting sections. |
-
-## Group meetings
-
-| Date | Attendees | Format | Discussion |
-| --- | --- | --- | --- |
-| 2026-11-02 | Vivianna, Xavier, Damian | zoom,group chat | Compilation and testing status. |
+`producer` sometimes generates floor 6; those requests are rejected because the building only has five floors. Don't load the separate `syscheck.ko` test module at the same time as `elevator.ko`.
 
 ## Testing
 
-**Part 1:** `empty.trace` has 30 system calls and `part1.trace` has 35, so the second program
-makes exactly five extra.
+We tested Parts 1-3 on our Ubuntu VM on November 4, 2026.
 
-**Part 2:** The module builds and loads on Ubuntu's 6.8 kernel, `/proc/timer` shows the
-current time on the first read, and later reads show elapsed times that match our `sleep`
-delays (about 2 and 3 seconds). Unloading removes the entry.
+| Test | Result |
+| --- | --- |
+| Part 1: `strace` | 30 calls in `empty.trace`, 35 in `part1.trace`; all 5 added calls verified |
+| Part 2: `/proc/timer` | Compiled and loaded; elapsed times around 2.002s and 3.002s; proc entry removed on unload |
+| Custom kernel | `6.16.12-cop4610` compiled, installed, booted, and accessible over SSH |
+| Elevator module | Built and loaded; `/proc/elevator` worked; unload/reload and counter reset worked |
+| Start/stop | Normal start, stop, restart, duplicate start, and stopping with a pet onboard passed |
+| Invalid inputs | Invalid floors, same-floor requests, and invalid pet types rejected |
+| Weight limit | Four pets boarded at 50 lbs; fifth waited; all 5 delivered |
+| Pet limit | Five pets boarded; sixth waited; all 6 delivered |
+| FIFO and multiple floors | Same-floor FIFO boarding order verified; multi-floor requests completed |
+| Movement timing | About 2s between floors and 1s for loading/unloading in a controlled test |
+| Stress test | 36 requests over about 3 minutes: 26 accepted, 10 rejected, all 26 accepted pets delivered |
 
-**Part 3:** The elevator source compiles, but we're still working on full testing on the
-custom kernel.
+The stress test ended with 0 pets onboard, 0 waiting, and the elevator back to `IDLE`. These tests cover the main behavior, but not every possible concurrent case.
+
+## Development log
+
+| Date | Member | Work |
+| --- | --- | --- |
+| Nov 2 | Vivianna | Worked on the initial project files, elevator logic, and fixing the loading time. |
+| Nov 4 | Vivianna | Got the custom kernel running, tested all three parts, and fixed syscall synchronization. |
+| Nov 2-4 | Xavier | Worked on splitting up and integrating the elevator code, system calls, and test programs. |
+| Nov 2-4 | Xavier | Helped debug issues, test elevator behavior, and check that the parts worked together. |
+| Nov 2-4 | Damian | Worked on the kernel/elevator implementation, scheduling, and integrating project parts. |
+| Nov 2-4 | Damian | Helped with testing, debugging, checking requirements, and updating documentation. |
+
+## Group meetings
+
+| Date | Members | Format | Topics |
+| --- | --- | --- | --- |
+| Nov 2 | Vivianna, Xavier, Damian | Zoom / group chat | Project progress, code integration, kernel compilation, and testing |
+
+## Demo note
+
+Our working custom kernel is installed in the Ubuntu VMware VM on the Windows PC. The GitHub repository contains the source code, not the installed kernel. To demonstrate Part 3 on a different machine, we need access to that VM or another machine with the patched kernel installed.
